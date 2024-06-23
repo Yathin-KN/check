@@ -1,6 +1,13 @@
-// api/scrape.js
+import puppeteer from 'puppeteer-core';
+import { join } from 'path';
+import { existsSync } from 'fs';
+import { execSync } from 'child_process';
 
-import puppeteer from 'puppeteer';
+const chromePath = join(__dirname, '..', '..', 'node_modules', 'puppeteer', '.local-chromium', 'linux-1022525', 'chrome-linux', 'chrome');
+
+if (!existsSync(chromePath)) {
+  execSync('npx puppeteer install');
+}
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
@@ -8,7 +15,8 @@ export default async function handler(req, res) {
 
     try {
       const browser = await puppeteer.launch({
-        headless: true, // Set to false if you want to see the browser
+        executablePath: chromePath,
+        headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
       });
       const page = await browser.newPage();
@@ -115,5 +123,3 @@ export default async function handler(req, res) {
     res.status(405).json({ error: 'Method not allowed' });
   }
 }
-
-
